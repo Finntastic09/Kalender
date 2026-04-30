@@ -1,0 +1,16 @@
+Unit]
+Description=BhP Terminkalender Server
+After=network.target
+
+[Service]
+# ANPASSEN: Pfad zum Projektordner
+WorkingDirectory=/home/pi/bhp_kalender
+# ANPASSEN: Pfad zu Python (prüfen mit: which python3)
+ExecStart=/usr/bin/python3 /home/pi/bhp_kalender/server.py
+Restart=always
+RestartSec=5
+User=pi
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
