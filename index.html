@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminkalender – WIR IM BhP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="header-brand">
+    <div id="bosch-logo">
+      <div class="bosch-mark">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" rx="2" fill="white" fill-opacity="0.9"/>
+          <rect x="12" y="3" width="7" height="7" rx="2" fill="white" fill-opacity="0.6"/>
+          <rect x="3" y="12" width="7" height="7" rx="2" fill="white" fill-opacity="0.6"/>
+          <rect x="12" y="12" width="7" height="7" rx="2" fill="white" fill-opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div id="brand-name">WIR IM BhP</div>
+        <div id="brand-sub">Das Werk – Technik &amp; Leben</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="header-center">
+    <div id="clock">00:00:00</div>
+    <div id="clock-date">–</div>
+    <div id="next-appt">–</div>
+  </div>
+
+  <div id="header-nav">
+    <button class="tab-btn active" onclick="showView('today')"    id="tab-today">Heute</button>
+    <button class="tab-btn"        onclick="showView('calendar')" id="tab-calendar">Kalender</button>
+    <button class="tab-btn"        onclick="showView('settings')" id="tab-settings">Einstellungen</button>
+  </div>
+</div>
+
+<!-- DAY PROGRESS -->
+<div id="day-progress-bar">
+  <div id="day-progress-label">Tagesfortschritt</div>
+  <div id="day-progress-track">
+    <div id="day-progress-fill" style="width:0%"></div>
+  </div>
+  <div id="day-progress-pct">0%</div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- TODAY VIEW -->
+  <div class="view active" id="today-view">
+    <div id="today-hdr">
+      <div id="today-label">Termine <span id="today-date-label">heute</span></div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);font-weight:700;opacity:0.6;">WIR IM BhP</span>
+        <button id="add-btn" onclick="openModal(null)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg>
+          Termin hinzufügen
+        </button>
+      </div>
+    </div>
+
+    <div id="appointments-list">
+      <div id="no-appts">
+        <div id="no-appts-icon">📭</div>
+        <div id="no-appts-text">Keine Termine heute</div>
+        <div id="no-appts-sub">N drücken oder oben klicken</div>
+      </div>
+    </div>
+
+    <div id="mini-cal">
+      <div id="mini-cal-nav">
+        <button class="mini-nav-btn" onclick="miniCalNav(-1)">&#8592;</button>
+        <div id="mini-month-lbl">–</div>
+        <button class="mini-nav-btn" onclick="miniCalNav(1)">&#8594;</button>
+      </div>
+      <div id="mini-grid"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div class="view" id="calendar-view">
+    <div id="cal-submode-bar">
+      <div id="cal-submode-tabs">
+        <button class="cal-sub-btn active" id="csub-day"   onclick="setCalMode('day')">Tag</button>
+        <button class="cal-sub-btn"        id="csub-week"  onclick="setCalMode('week')">Woche</button>
+        <button class="cal-sub-btn"        id="csub-month" onclick="setCalMode('month')">Monat</button>
+        <button class="cal-sub-btn"        id="csub-year"  onclick="setCalMode('year')">Jahr</button>
+      </div>
+      <div id="cal-nav-controls">
+        <button class="cal-nav-btn" onclick="calNavStep(-1)">&#8592;</button>
+        <div id="cal-period-label">–</div>
+        <button class="cal-nav-btn" onclick="calNavStep(1)">&#8594;</button>
+        <button class="cal-nav-btn cal-nav-today" onclick="calGoToday()">Heute</button>
+        <button class="cal-nav-btn" onclick="openModal(null)" style="color:var(--accent);font-weight:700;font-size:18px;border-left:1px solid var(--border)">+</button>
+      </div>
+    </div>
+    <div id="cal-body"></div>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div class="view" id="settings-view">
+
+    <div class="settings-card">
+      <h3>Erscheinungsbild</h3>
+      <div class="s-row">
+        <div>
+          <div class="s-label">Farbmodus</div>
+          <div class="s-sub">Dark Mode / White Mode</div>
+        </div>
+        <div class="s-control">
+          <div class="theme-toggle-wrap">
+            <span class="theme-icons">🌙</span>
+            <label class="theme-toggle">
+              <input type="checkbox" id="theme-toggle-cb" onchange="toggleTheme(this.checked)">
+              <span class="theme-toggle-slider"></span>
+            </label>
+            <span class="theme-icons">☀️</span>
+          </div>
+        </div>
+      </div>
+      <div class="saved-badge show" style="margin-top:8px;color:var(--muted2);">Aktiv: <span id="theme-label">Dark Mode</span></div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Schriftgröße</h3>
+      <div class="s-row">
+        <div>
+          <div class="s-label">Textgröße</div>
+          <div class="s-sub">75% – 150%</div>
+        </div>
+        <div class="s-control">
+          <div id="fs-slider-wrap">
+            <input type="range" id="fs-slider" min="0.75" max="1.5" step="0.05" value="1" oninput="previewFontSize(this.value)">
+            <span id="fs-label">100%</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveFontSize()">&#10003; Speichern</button>
+      <div class="saved-badge" id="fs-saved">&#10003; Gespeichert</div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Uhrzeit &amp; Format</h3>
+      <div class="s-row">
+        <div>
+          <div class="s-label">Zeitformat</div>
+          <div class="s-sub">Fest: 24 Stunden mit Sekunden</div>
+        </div>
+        <div class="s-control" style="font-family:'IBM Plex Mono',monospace;font-size:calc(var(--fs)*18px);background:var(--grad-vb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;">
+          HH:MM:SS
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Startansicht</h3>
+      <div class="s-row">
+        <div class="s-label">Ansicht beim Start</div>
+        <div class="s-control">
+          <select id="s-startview">
+            <option value="today">Heute</option>
+            <option value="calendar">Kalender</option>
+          </select>
+        </div>
+      </div>
+      <div class="s-row">
+        <div class="s-label">Vergangene Termine</div>
+        <div class="s-control">
+          <select id="s-past">
+            <option value="show">Anzeigen (ausgegraut)</option>
+            <option value="hide">Verstecken</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveDisplaySettings()">&#10003; Speichern</button>
+      <div class="saved-badge" id="disp-saved">&#10003; Gespeichert</div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Raspberry Pi – Systemzeit (Offline)</h3>
+      <div class="code-block">
+        <span class="code-comment"># Datum und Uhrzeit setzen:</span><br>
+        sudo date -s "JJJJ-MM-TT HH:MM:SS"<br><br>
+        <span class="code-comment"># Beispiel – 15. Juni 2024, 14:30 Uhr:</span><br>
+        sudo date -s "2024-06-15 14:30:00"<br><br>
+        <span class="code-comment"># RTC-Modul synchronisieren (falls vorhanden):</span><br>
+        sudo hwclock -w<br><br>
+        <span class="code-comment"># Zeitzone dauerhaft setzen:</span><br>
+        sudo timedatectl set-timezone Europe/Berlin
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- #main -->
+
+<div id="footer">
+  <div class="kb"><span class="key">N</span> Neuer Termin</div>
+  <div class="kb"><span class="key">1</span> Heute</div>
+  <div class="kb"><span class="key">2</span> Kalender</div>
+  <div class="kb"><span class="key">3</span> Einstellungen</div>
+  <div class="kb"><span class="key">H</span> Hilfe</div>
+  <div class="kb"><span class="key">ESC</span> Schließen</div>
+  <div class="kb"><span class="key">←</span><span class="key">→</span> Navigieren</div>
+  <div style="margin-left:auto;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);opacity:0.5;font-weight:700;">WIR IM BhP</div>
+</div>
+
+<!-- MODAL: Termin hinzufügen / bearbeiten -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div id="modal-heading">Termin hinzufügen</div>
+    <div class="m-field">
+      <label>Titel *</label>
+      <input type="text" id="f-title" placeholder="z.B. Arzttermin" autocomplete="off">
+    </div>
+    <div class="m-row">
+      <div class="m-field">
+        <label>Datum</label>
+        <input type="date" id="f-date">
+      </div>
+    </div>
+    <div class="m-time-section">
+      <div class="m-time-row">
+        <div class="m-field">
+          <label>Startzeit</label>
+          <input type="time" id="f-time" oninput="onStartTimeChange()">
+        </div>
+        <div class="m-field">
+          <label>Endzeit</label>
+          <input type="time" id="f-endtime" oninput="onEndTimeChange()">
+        </div>
+      </div>
+      <div class="m-duration-row">
+        <div class="m-duration-label">Dauer:</div>
+        <div class="m-duration-chips">
+          <button class="dur-chip" onclick="setDuration(15)">15 Min</button>
+          <button class="dur-chip" onclick="setDuration(30)">30 Min</button>
+          <button class="dur-chip" onclick="setDuration(45)">45 Min</button>
+          <button class="dur-chip" onclick="setDuration(60)">1 Std</button>
+          <button class="dur-chip" onclick="setDuration(90)">1,5 Std</button>
+          <button class="dur-chip" onclick="setDuration(120)">2 Std</button>
+        </div>
+        <div class="m-duration-custom">
+          <input type="number" id="f-dur-custom" min="5" max="480" step="5" placeholder="Min" oninput="setDuration(parseInt(this.value)||0)">
+          <span class="m-dur-unit">Min</span>
+        </div>
+      </div>
+      <div id="m-duration-display" class="m-duration-display"></div>
+    </div>
+    <div class="m-field">
+      <label>Notiz (optional)</label>
+      <textarea id="f-note" placeholder="Weitere Informationen…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
+      <button class="btn-confirm" onclick="saveAppt()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM: Löschen -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <div id="confirm-icon">🗑️</div>
+    <div id="confirm-msg">Termin wirklich löschen?</div>
+    <div id="confirm-btns">
+      <button class="btn-no"  onclick="closeConfirm()">Abbrechen</button>
+      <button class="btn-yes" onclick="confirmDelete()">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP BUTTON -->
+<button id="help-btn" onclick="openHelp()" title="Hilfe">?</button>
+
+<!-- HELP MODAL -->
+<div id="help-overlay">
+  <div id="help-modal">
+    <div id="help-heading">&#9432; Tipps &amp; Tricks</div>
+
+    <div class="help-section">
+      <div class="help-section-title">⌨️ Tastaturkürzel</div>
+      <div class="help-tip"><span class="help-tip-icon">📌</span><div><strong><span class="help-key">N</span></strong> – Neuen Termin schnell hinzufügen</div></div>
+      <div class="help-tip"><span class="help-tip-icon">🔢</span><div><strong><span class="help-key">1</span> <span class="help-key">2</span> <span class="help-key">3</span></strong> – Heute / Kalender / Einstellungen</div></div>
+      <div class="help-tip"><span class="help-tip-icon">🗓️</span><div><strong><span class="help-key">←</span> <span class="help-key">→</span></strong> – Im Kalender navigieren</div></div>
+      <div class="help-tip"><span class="help-tip-icon">✅</span><div><strong><span class="help-key">Enter</span></strong> – Formular speichern</div></div>
+      <div class="help-tip"><span class="help-tip-icon">❌</span><div><strong><span class="help-key">ESC</span></strong> – Dialoge schließen</div></div>
+      <div class="help-tip"><span class="help-tip-icon">❓</span><div><strong><span class="help-key">H</span></strong> – Diese Hilfe öffnen</div></div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">📅 Kalenderansicht</div>
+      <div class="help-tip"><span class="help-tip-icon">📆</span><div><strong>Tag</strong> – Stündliche Timeline, Uhrzeit-Stempel anklicken = neuer Termin</div></div>
+      <div class="help-tip"><span class="help-tip-icon">📋</span><div><strong>Woche</strong> – 7-Tage-Übersicht, Stunde anklicken = neuer Termin</div></div>
+      <div class="help-tip"><span class="help-tip-icon">🗓️</span><div><strong>Monat</strong> – Tag anklicken = neuer Termin, Banner anklicken = bearbeiten</div></div>
+      <div class="help-tip"><span class="help-tip-icon">🗺️</span><div><strong>Jahr</strong> – Alle 12 Monate mit Termin-Übersicht</div></div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">📅 Heute-Ansicht</div>
+      <div class="help-tip"><span class="help-tip-icon">🟢</span><div>Termine die <strong>gerade stattfinden</strong> (±45 Min) sind grün markiert</div></div>
+      <div class="help-tip"><span class="help-tip-icon">✏️</span><div>Termin anklicken öffnet den <strong>Bearbeitungsdialog</strong></div></div>
+      <div class="help-tip"><span class="help-tip-icon">📊</span><div>Der <strong>Tagesfortschritts-Balken</strong> zeigt wie weit der Tag fortgeschritten ist</div></div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">⚙️ Einstellungen</div>
+      <div class="help-tip"><span class="help-tip-icon">🌙</span><div>Toggle zwischen <strong>Dark Mode</strong> und <strong>White Mode</strong></div></div>
+      <div class="help-tip"><span class="help-tip-icon">🔡</span><div>Schriftgröße 75%–150% skalierbar</div></div>
+      <div class="help-tip"><span class="help-tip-icon">💾</span><div>Alle Daten werden <strong>lokal auf dem Raspberry Pi</strong> gespeichert</div></div>
+    </div>
+
+    <button id="help-close-btn" onclick="closeHelp()">Schließen</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
