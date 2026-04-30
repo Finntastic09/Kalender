@@ -1,13 +1,15 @@
 [Unit]
-Description=BHP Terminkalender Server
+Description=BhP Terminkalender Server
 After=network.target
 
 [Service]
-WorkingDirectory=/home/finntastic/Kalender
-ExecStart=/usr/bin/python3 /home/finntastic/Kalender/server.py
+# ANPASSEN: Pfad zum Projektordner
+WorkingDirectory=/home/pi/bhp_kalender
+# ANPASSEN: Pfad zu Python (prüfen mit: which python3)
+ExecStart=/usr/bin/python3 /home/pi/bhp_kalender/server.py
 Restart=always
 RestartSec=5
-User=finntastic
+User=pi
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
